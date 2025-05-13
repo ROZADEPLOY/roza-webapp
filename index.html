@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>Система управления оперативными задачами</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #141e30, #243b55);
+            color: #f0f0f0;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+        }
+        
+        .header {
+            background: #1d1d1f;
+            color: white;
+            padding: 16px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            font-size: 18px;
+            background: #ff4b5c;
+            animation: pop 0.5s ease-out;
+            width: 32px;
+            height: 32px;
+            background: #0066cc;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        
+        .security-level {
+            background: #dc3545;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .nav-tabs {
+            background: white;
+            border-radius: 12px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .nav-tab:hover {
+            background: #f5f5f7;
+        }
+        
+        .nav-tab.active {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .content-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0051a3;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #1d1d1f;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .task-card {
+            background: #f5f5f7;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e5e5e7;
+            transition: all 0.2s;
+        }
+        
+        .task-card:hover {
+            border-color: #0066cc;
+            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        
+        .task-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+        
+        .task-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .agent-badge {
+            background: #0066cc;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #1d1d1f;
+        }
+        
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .task-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .alert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .alert-card {
+            background: #f5f5f7;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .alert-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .alert-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .alert-red .alert-icon {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .alert-yellow .alert-icon {
+            background: #ffc107;
+            color: #1d1d1f;
+        }
+        
+        .alert-blue .alert-icon {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f7;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: #e5e5e7;
+        }
+        
+        .modal-body {
+            background: linear-gradient(to bottom, #141e30, #243b55);
+            color: #f0f0f0;
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e5e7;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .agent-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .agent-card {
+            background: #f5f5f7;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #e5e5e7;
+        }
+        
+        .agent-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+        
+        .agent-info {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: #f5f5f7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .file-upload {
+            position: relative;
+            margin-top: 12px;
+        }
+        
+        .file-upload-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: block;
+            padding: 12px;
+            background: #f5f5f7;
+            border: 2px dashed #e5e5e7;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-upload-label:hover {
+            border-color: #0066cc;
+            background: #f0f7ff;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 12px;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                width: 100%;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    @keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.nav-tab.active {
+    background: linear-gradient(135deg, #ff4b5c, #ff6e7f);
+    color: white;
+}
+.btn:hover {
+    transform: translateY(-2px);
+}
+</style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🌹</div>
+                <h1>Роза — система управления задачами</h1>
+            </div>
+            <div class="security-level">Для служебного пользования</div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('tasks')">Задачи</button>
+            <button class="nav-tab" onclick="showTab('agents')">Сотрудники</button>
+            <button class="nav-tab" onclick="showTab('alerts')">Оповещения</button>
+        </div>
+        
+        <!-- Вкладка задач -->
+        <div id="tasks-tab" class="content-section active">
+            <div class="section-header">
+                <h2 class="section-title">Оперативные задачи</h2>
+                <button class="btn btn-primary" onclick="openModal('task-modal')">
+                    <span>+</span> Новая задача
+                </button>
+            </div>
+            
+            <div id="tasks-list">
+                <!-- Задачи будут загружаться динамически -->
+            </div>
+        </div>
+        
+        <!-- Вкладка сотрудников -->
+        <div id="agents-tab" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Сотрудники</h2>
+                <button class="btn btn-primary" onclick="openModal('agent-modal')">
+                    <span>+</span> Добавить сотрудника
+                </button>
+            </div>
+            
+            <div id="agents-list" class="agent-list">
+                <!-- Список сотрудников будет загружаться динамически -->
+            </div>
+        </div>
+        
+        <!-- Вкладка оповещений -->
+        <div id="alerts-tab" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Система оповещений</h2>
+            </div>
+            
+            <div class="alert-grid">
+                <div class="alert-card alert-red">
+                    <div class="alert-icon">!</div>
+                    <h3>Код "Красный"</h3>
+                    <p>Экстренная ситуация</p>
+                    <button class="btn btn-danger" onclick="sendAlert('RED')">Активировать</button>
+                </div>
+                
+                <div class="alert-card alert-yellow">
+                    <div class="alert-icon">⚠</div>
+                    <h3>Код "Желтый"</h3>
+                    <p>Повышенная готовность</p>
+                    <button class="btn btn-warning" onclick="sendAlert('YELLOW')">Активировать</button>
+                </div>
+                
+                <div class="alert-card alert-blue">
+                    <div class="alert-icon">i</div>
+                    <h3>Код "Синий"</h3>
+                    <p>Сбор личного состава</p>
+                    <button class="btn btn-primary" onclick="sendAlert('BLUE')">Активировать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для задач -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Новая задача</h3>
+                <button class="modal-close" onclick="closeModal('task-modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="task-form">
+                    <div class="form-group">
+                        <label class="form-label">Название задачи</label>
+                        <input type="text" class="form-input" id="task-title" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-textarea" id="task-description" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Исполнитель</label>
+                        <select class="form-select" id="task-agent" required>
+                            <option value="">Выберите сотрудника</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Создать задачу</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для сотрудников -->
+    <div id="agent-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Добавить сотрудника</h3>
+                <button class="modal-close" onclick="closeModal('agent-modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="agent-form">
+                    <div class="form-group">
+                        <label class="form-label">Позывной</label>
+                        <input type="text" class="form-input" id="agent-callsign" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telegram ID</label>
+                        <input type="text" class="form-input" id="agent-telegram-id" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Состояние приложения
+        let currentUser = null;
+        let isAdmin = false;
+        let tasks = [];
+        let agents = [];
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = tg.initDataUnsafe.user;
+            initializeApp();
+        });
+        
+        function initializeApp() {
+            // Проверяем права пользователя
+            fetch('/api/check_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: currentUser.id,
+                    username: currentUser.username
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                isAdmin = data.is_admin;
+                loadTasks();
+                loadAgents();
+                
+                // Скрываем функции администратора если не админ
+                if (!isAdmin) {
+                    document.querySelectorAll('.btn-primary').forEach(btn => {
+                        if (btn.textContent.includes('Новая задача') || 
+                            btn.textContent.includes('Добавить сотрудника')) {
+                            btn.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Навигация по вкладкам
+        function showTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+        
+        // Модальные окна
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // Загрузка задач
+        function loadTasks() {
+            fetch('/api/tasks')
+                .then(response => response.json())
+                .then(data => {
+                    tasksList.innerHTML = tasks.map(task => `
+                <div class="task-card">
+                    <div class="task-header">
+                        <div>
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span>Исполнитель: <span class="agent-badge">${task.agent_name}</span></span>
+                                <span>Создано: ${formatDate(task.created_date)}</span>
+                            </div>
+                        </div>
+                        <span class="status-badge ${task.status === 'completed' ? 'status-completed' : 'status-pending'}">
+                            ${task.status === 'completed' ? 'Выполнено' : 'В работе'}
+                        </span>
+                    </div>
+                    <div class="task-description">${task.description}</div>
+                    ${task.status === 'pending' && task.agent_id === currentUser.id ? `
+                        <div>
+                            <button class="btn btn-primary" onclick="completeTask(${task.id})">
+                                Отметить выполненным
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Загрузка сотрудников
+        function loadAgents() {
+            const params = new URLSearchParams();
+            params.append('init_data', tg.initData);
+            
+            fetch(`/api/agents?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    agents = data.agents;
+                    renderAgents();
+                    updateAgentSelect();
+                });
+        }
+        
+        // Отображение сотрудников
+        function renderAgents() {
+            const agentsList = document.getElementById('agents-list');
+            
+            if (agents.length === 0) {
+                agentsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>Список сотрудников пуст</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            agentsList.innerHTML = agents.map(agent => `
+                <div class="agent-card">
+                    <div class="agent-name">${agent.callsign}</div>
+                    <div class="agent-info">
+                        <div>ID: ${agent.telegram_id}</div>
+                        <div>Роль: ${agent.role === 'admin' ? 'Администратор' : 'Сотрудник'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Обновление списка агентов в селекте
+        function updateAgentSelect() {
+            const select = document.getElementById('task-agent');
+            select.innerHTML = '<option value="">Выберите сотрудника</option>' +
+                agents.map(agent => `
+                    <option value="${agent.telegram_id}">${agent.callsign}</option>
+                `).join('');
+        }
+        
+        // Создание задачи
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const taskData = {
+                title: document.getElementById('task-title').value,
+                description: document.getElementById('task-description').value,
+                agent_id: document.getElementById('task-agent').value,
+                creator_id: currentUser.id,
+                init_data: tg.initData
+            };
+            
+            fetch('/api/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(taskData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('task-modal');
+                    loadTasks();
+                    tg.showAlert('Задача создана успешно');
+                    e.target.reset();
+                }
+            });
+        });
+        
+        // Добавление сотрудника
+        document.getElementById('agent-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const agentData = {
+                callsign: document.getElementById('agent-callsign').value,
+                telegram_id: document.getElementById('agent-telegram-id').value,
+                init_data: tg.initData
+            };
+            
+            fetch('/api/agents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(agentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('agent-modal');
+                    loadAgents();
+                    tg.showAlert('Сотрудник добавлен успешно');
+                    e.target.reset();
+                }
+            });
+        });
+        
+        // Выполнение задачи
+        function completeTask(taskId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('task_id', taskId);
+                    formData.append('user_id', currentUser.id);
+                    formData.append('report', file);
+                    formData.append('init_data', tg.initData);
+                    
+                    fetch('/api/tasks/complete', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadTasks();
+                            tg.showAlert('Задача выполнена');
+                        }
+                    });
+                }
+            };
+            
+            input.click();
+        }
+        
+        // Отправка оповещения
+        function sendAlert(code) {
+            if (!confirm(`Вы уверены, что хотите активировать код "${code}"?`)) {
+                return;
+            }
+            
+            fetch('/api/alerts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    code: code,
+                    sender_id: currentUser.id,
+                    init_data: tg.initData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    tg.showAlert('Оповещение отправлено всем сотрудникам');
+                }
+            });
+        }
+        
+        // Форматирование даты
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Закрытие модалок по клику вне
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>s = data.tasks;
+                    renderTasks();
+                });
+        }
+        
+        // Отображение задач
+        function renderTasks() {
+            const tasksList = document.getElementById('tasks-list');
+            
+            if (tasks.length === 0) {
+                tasksList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Нет активных задач</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            tasksList.innerHTML = tasks.map(task => `
+                <div class="task-card">
+                    <div class="task-header">
+                        <div>
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span>Исполнитель: <span class="agent-badge">${task.agent_name}</span></span>
+                                <span>Создано: ${formatDate(task.created_date)}</span>
+                            </div>
+                        </div>
+                        <span class="status-badge ${task.status === 'completed' ? 'status-completed' : 'status-pending'}">
+                            ${task.status === 'completed' ? 'Выполнено' : 'В работе'}
+                        </span>
+                    </div>
+                    <div class="task-description">${task.description}</div>
+                    ${task.status === 'pending' && task.agent_id === currentUser.id ? `
+                        <div>
+                            <button class="btn btn-primary" onclick="completeTask(${task.id})">
+                                Отметить выполненным
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Загрузка сотрудников
+        function loadAgents() {
+            fetch('/api/agents')
+                .then(response => response.json())
+                .then(data => {
+                    agents = data.agents;
+                    renderAgents();
+                    updateAgentSelect();
+                });
+        }
+        
+        // Отображение сотрудников
+        function renderAgents() {
+            const agentsList = document.getElementById('agents-list');
+            
+            if (agents.length === 0) {
+                agentsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>Список сотрудников пуст</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            agentsList.innerHTML = agents.map(agent => `
+                <div class="agent-card">
+                    <div class="agent-name">${agent.callsign}</div>
+                    <div class="agent-info">
+                        <div>ID: ${agent.telegram_id}</div>
+                        <div>Роль: ${agent.role === 'admin' ? 'Администратор' : 'Сотрудник'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Обновление списка агентов в селекте
+        function updateAgentSelect() {
+            const select = document.getElementById('task-agent');
+            select.innerHTML = '<option value="">Выберите сотрудника</option>' +
+                agents.map(agent => `
+                    <option value="${agent.telegram_id}">${agent.callsign}</option>
+                `).join('');
+        }
+        
+        // Создание задачи
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const taskData = {
+                title: document.getElementById('task-title').value,
+                description: document.getElementById('task-description').value,
+                agent_id: document.getElementById('task-agent').value
+            };
+            
+            fetch('/api/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(taskData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('task-modal');
+                    loadTasks();
+                    tg.showAlert('Задача создана успешно');
+                }
+            });
+        });
+        
+        // Добавление сотрудника
+        document.getElementById('agent-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const agentData = {
+                callsign: document.getElementById('agent-callsign').value,
+                telegram_id: document.getElementById('agent-telegram-id').value
+            };
+            
+            fetch('/api/agents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(agentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('agent-modal');
+                    loadAgents();
+                    tg.showAlert('Сотрудник добавлен успешно');
+                }
+            });
+        });
+        
+        // Выполнение задачи
+        function completeTask(taskId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('task_id', taskId);
+                    formData.append('report', file);
+                    
+                    fetch('/api/tasks/complete', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadTasks();
+                            tg.showAlert('Задача выполнена');
+                        }
+                    });
+                }
+            };
+            
+            input.click();
+        }
+        
+        // Отправка оповещения
+        function sendAlert(code) {
+            if (!confirm(`Вы уверены, что хотите активировать код "${code}"?`)) {
+                return;
+            }
+            
+            fetch('/api/alerts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    tg.showAlert('Оповещение отправлено всем сотрудникам');
+                }
+            });
+        }
+        
+        // Форматирование даты
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Закрытие модалок по клику вне
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
